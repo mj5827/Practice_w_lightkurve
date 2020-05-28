@@ -1,0 +1,15 @@
+from lightkurve import search_targetpixelfile
+import matplotlib.pyplot as plt
+
+#https://docs.lightkurve.org/api/lightkurve.lightcurve.LightCurve.html -> methods for lightkurve
+
+tpfs = search_targetpixelfile('KIC 11554435').download_all()
+#Build the light curve
+pipeline_lc = tpfs[0].to_lightcurve().flatten()
+for tpf in tpfs[1:]:
+    pipeline_lc = pipeline_lc.append(tpf.to_lightcurve().flatten())
+#clean the light curve
+pipeline_lc = pipeline_lc.remove_nans().remove_outliers()
+
+#graphing lightcurve, orbital period of kepler 63b is 9.434 days
+pipeline_lc.fold(period=9.434, t0=-1.415).bin().errorbar()
